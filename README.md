@@ -110,3 +110,103 @@ Soketler iletişim uç noktalarını sağlarken, verinin bu uç noktalar arasın
 
 Alrawi Chat, yerel ağda güvenli ve verimli mesajlaşmayı sağlamak için TCP tabanlı bir yaklaşım kullanır. Çift yönlü iletişim için soketler kullanılırken, eş zamanlılık ve çoklu istemci desteği iş parçacıkları aracılığıyla yönetilmektedir. Ayrıca, daha fazla kullanıcı ve yüksek trafikli ağlar için ölçeklenebilirliği arttırmak adına belirli geliştirme yönlerine (örn. hata yönetimi, GUI iyileştirmeleri) odaklanılabilir.
 
+
+# Kod Yapısı
+
+## Sabitler ve Değişkenler
+
+### 🔧 **Constants (Sabitler)**
+
+- **`HEADER`**:  
+  Bu sabit, mesajların başlık kısmı için ayrılacak olan bayt sayısını belirtir. Değeri **64** olarak belirlenmiştir, yani her mesajın başında bu kadar baytlık bir alan olacak. Bu alan, mesajın boyutunu (header) içerir.
+
+```csharp
+private const int HEADER = 64;
+```
+
+- **`FORMAT`**:  
+  Bu sabit, mesajların iletilirken kullanılacak **karakter formatı** (encoding) belirtir. Burada **UTF-8** formatı kullanılmıştır. UTF-8, dünya çapında en yaygın kullanılan metin formatlarından biridir ve birçok dildeki karakteri destekler.
+
+```csharp
+private const string FORMAT = "utf-8";
+```
+
+- **`DISCONNECT_MESSAGE`**:  
+  Bu sabit, bir istemcinin bağlantıyı kesmek istediğinde gönderdiği özel bir mesajı temsil eder. **`"!DISCONNECT"`** mesajı, istemcinin sunucuya veya diğer istemcilere "Bağlantımı kesiyorum" demesini sağlar.
+
+```csharp
+private const string DISCONNECT_MESSAGE = "!DISCONNECT";
+```
+
+---
+
+### 🧰 **Variables (Değişkenler)**
+
+- **`isServer`**:  
+  Bu **boolean** (doğru/yanlış) değişken, programın şu an sunucu modunda mı çalıştığını belirler. Eğer değer **true** ise, program sunucu olarak çalışıyordur. Eğer **false** ise, program istemci olarak çalışıyordur.
+
+```csharp
+private bool isServer = false;
+```
+
+- **`server`**:  
+  **`Socket`** türünde bir değişkendir ve sunucu soketini temsil eder. Sunucu, bu soket üzerinden istemcilerle bağlantı kurar ve mesajlaşma işlemlerini yönetir.
+
+```csharp
+private Socket server = null;
+```
+
+- **`client`**:  
+  **`TcpClient`** türünde bir değişkendir ve istemci tarafındaki bağlantıyı temsil eder. Bu, sunucuya bağlanan istemcinin bağlantısını yönetir.
+
+```csharp
+private TcpClient client = null;
+```
+
+- **`clientStream`**:  
+  **`NetworkStream`** türünde bir değişken olup, istemci ile sunucu arasındaki veri iletimini sağlamak için kullanılır. Bu stream üzerinden mesajlar gönderilir ve alınır.
+
+```csharp
+private NetworkStream clientStream = null;
+```
+
+- **`listenThread`**:  
+  **`Thread`** türünde bir değişkendir ve sunucunun istemci bağlantılarını dinlemek için kullanılan iş parçacığını temsil eder. Sunucu yeni istemci bağlantıları kabul etmek için bu iş parçacığını kullanır.
+
+```csharp
+private Thread listenThread = null;
+```
+
+- **`messageThread`**:  
+  **`Thread`** türünde bir değişkendir ve istemciden veya sunucudan gelen mesajları almak ve işlemek için kullanılan iş parçacığını temsil eder.
+
+```csharp
+private Thread messageThread = null;
+```
+
+- **`username`**:  
+  Bu, kullanıcının adını tutan bir **string** değişkendir. Mesajlaşma sırasında, hangi kullanıcıdan mesaj geldiğini belirlemek için kullanılır.
+
+```csharp
+private string username;
+```
+
+---
+
+### 🖥️ **Server-Specific Variables (Sunucuya Özgü Değişkenler)**
+
+- **`clients`**:  
+  Bu, **`Socket`** türünde bir liste olup, sunucuya bağlı olan tüm istemcilerin soketlerini saklar. Her istemci, sunucuyla bağlantı kurduğunda, bu listeye eklenir.
+
+```csharp
+private static List<Socket> clients = new List<Socket>();
+```
+
+- **`addrs`**:  
+  Bu, **`IPEndPoint`** türünde bir liste olup, sunucuya bağlı olan tüm istemcilerin IP adreslerini ve bağlantı noktalarını saklar. Her istemci bağlantısı kurduğunda, bu listeye eklenir.
+
+```csharp
+private static List<IPEndPoint> addrs = new List<IPEndPoint>();
+```
+
+---
