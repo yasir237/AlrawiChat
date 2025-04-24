@@ -2,6 +2,10 @@
 
 Alrawi Chat, aynı yerel ağ (WiFi) üzerinde bulunan kullanıcıların birbirleriyle anlık olarak mesajlaşmasını sağlayan, C# ve Windows Forms kullanılarak geliştirilmiş bir masaüstü uygulamasıdır. Uygulama, merkezi bir sunucu ve bu sunucuya bağlanan istemciler (clients) mimarisi üzerine kurulmuştur. Temel iletişim altyapısı TCP/IP soketleri ile sağlanmakta, eş zamanlılık ve kullanıcı arayüzü yanıt verebilirliği ise System.Threading kütüphanesi kullanılarak yönetilmektedir.
 
+<div align = center >
+  <img src = 'https://github.com/user-attachments/assets/e05c3b70-e825-4eca-8ebd-f707cc9a756e' >
+</div>
+
 ## ✨ Temel Özellikler
 
 - **Sunucu & İstemci Modları**: Uygulama hem sunucu (server) hem de istemci (client) olarak başlatılabilir.
