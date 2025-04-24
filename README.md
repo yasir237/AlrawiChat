@@ -412,6 +412,191 @@ latılır.
 ```
 
 ---
+## Helper Methods 🛠️ 
+
+### **AppendToChatHistory** 💬
+
+Bir sohbet uygulamasında, her gelen mesajın doğru bir şekilde kullanıcıya gösterilmesi önemlidir. Bu fonksiyon, mesajları sohbet geçmişine ekler ve her mesajı uygun renk, stil ve biçimde kullanıcıya sunar. Örneğin, bir sistem mesajı farklı bir renk ve kalın yazı tipinde gösterilirken, bir hata mesajı kırmızı renkte ve yine kalın olabilir. Ayrıca, her mesajdan önce kullanıcıya "►" sembolü eklenir. Bu sayede kullanıcı, mesajın kimden geldiğini kolayca anlayabilir.
+
+```csharp
+private void AppendToChatHistory(string message)
+{
+    if (this.InvokeRequired)  // Eğer çağrı arka planda yapılmışsa, UI thread'inde çalıştırmak için Invoke kullanılır.
+    {
+        try
+        {
+            this.Invoke(new Action<string>(AppendToChatHistory), message);  // UI thread'inde mesajı ekler.
+            return;
+        }
+        catch (Exception) { return; }  // Hata durumunda bir şey yapılmaz.
+    }
+
+    Panel currentPanel = this.Tag as Panel;  // Mevcut paneli alır.
+    if (currentPanel != null)
+    {
+        RichTextBox chatBox = currentPanel.Tag as RichTextBox;  // Panelin içinde bulunan RichTextBox'ı alır.
+        if (chatBox != null)
+        {
+            // Mesaj türüne göre renk ve stil belirlenir.
+            Color messageColor;
+            bool isBold = false;
+
+            if (message.StartsWith("[SYSTEM]"))
+            {
+                messageColor = Color.DarkGray;  // Sistem mesajı için gri renk
+                isBold = true;  // Mesaj kalın yazı stilinde olacak
+            }
+            else if (message.StartsWith("[SERVER]"))
+            {
+                messageColor = Color.FromArgb(0, 120, 215);  // Sunucu mesajı için mavi renk
+                isBold = true;
+            }
+            else if (message.StartsWith("[ERROR]"))
+            {
+                messageColor = Color.Red;  // Hata mesajı için kırmızı renk
+                isBold = true;
+            }
+            else if (message.StartsWith("You:"))
+            {
+                messageColor = Color.FromArgb(0, 150, 136);  // Kullanıcı mesajı için yeşil tonları
+                message = "► " + message;
+            }
+            else
+            {
+                messageColor = Color.FromArgb(50, 50, 50);  // Diğer mesajlar için gri
+                message = "► " + message;
+            }
+
+            // Mesajın yazıldığı yerin başlangıç pozisyonu alınır.
+            int startPos = chatBox.TextLength;
+
+            // Mesaj eklenir.
+            chatBox.AppendText(message + Environment.NewLine);
+
+            // Eklenen mesaj seçilir ve rengi ayarlanır.
+            chatBox.Select(startPos, message.Length);
+            chatBox.SelectionColor = messageColor;
+
+            // Eğer mesaj kalın (bold) yazılacaksa, yazı tipini kalın yapar.
+            if (isBold)
+                chatBox.SelectionFont = new Font(chatBox.Font, FontStyle.Bold);
+
+            // Sistem mesajları için bir ayırıcı çizgi eklenir.
+            if (message.StartsWith("[SYSTEM]") || message.StartsWith("[ERROR]"))
+            {
+                int linePos = chatBox.TextLength;
+                chatBox.AppendText("─────────────────────────────────" + Environment.NewLine);
+                chatBox.Select(linePos, 35);
+                chatBox.SelectionColor = Color.LightGray;
+            }
+
+            // Seçim sıfırlanır.
+            chatBox.SelectionStart = chatBox.TextLength;
+            chatBox.SelectionLength = 0;
+
+            // Sohbet kutusu son mesajı gösterecek şekilde kaydırılır.
+            chatBox.ScrollToCaret();
+        }
+    }
+}
+```
+
+**Açıklama**:
+- **Mesaj Tipi ve Renk Seçimi**: Mesajın türüne göre farklı renkler ve stiller seçilir. Bu sayede kullanıcı, gelen mesajın türünü (sistem mesajı, hata, vs.) kolayca ayırt edebilir.
+- **RichTextBox Kullanımı**: `RichTextBox` kullanılarak yazı stilini değiştirme, renkleri ayarlama gibi işlemler yapılır. Bu, görsel olarak kullanıcı deneyimini geliştirir.
+- **Karmaşık UI İşlemleri**: `InvokeRequired` ve `Invoke` kullanımı, çoklu thread'ler arasında UI güncellemeleri yapmayı sağlar. Bu, özellikle kullanıcı arayüzü ile arka planda çalışan iş parçacıkları arasındaki uyumu sağlar.
+
+---
+
+### **CleanupConnections** 🧹
+
+Bir istemci veya sunucu bağlantısını sonlandırmak ve temizlemek gerekir. Diyelim ki bir sohbet odasındaki kullanıcı, sohbeti sonlandırmaya karar verdi. Bu fonksiyon, istemci ve sunucu bağlantılarını düzgün bir şekilde kapatır, kullanılmayan kaynakları temizler ve tüm bağlantıları sonlandırır. Ayrıca, açık olan thread’ler (iş parçacıkları) güvenli bir şekilde durdurulur.
+
+```csharp
+private void CleanupConnections()
+{
+    // Sunucu bağlantısını temizler.
+    if (server != null)
+    {
+        try
+        {
+            server.Close();  // Sunucu kapatılır.
+        }
+        catch { }
+        server = null;  // Sunucu nesnesi null yapılır.
+    }
+
+    // İstemci bağlantısını temizler.
+    if (client != null)
+    {
+        try
+        {
+            if (client.Connected)
+            {
+                if (clientStream != null)
+                {
+                    // Bağlantıyı sonlandırmak için disconnect mesajı gönderilir.
+                    string fullMessage = $"{username}: {DISCONNECT_MESSAGE}\n";
+                    byte[] messageBytes = Encoding.UTF8.GetBytes(fullMessage);
+                    string header = messageBytes.Length.ToString();
+                    byte[] headerBytes = Encoding.UTF8.GetBytes(header.PadRight(HEADER));
+                    clientStream.Write(headerBytes, 0, headerBytes.Length);
+                    clientStream.Write(messageBytes, 0, messageBytes.Length);
+
+                    clientStream.Close();  // Stream kapatılır.
+                }
+                client.Close();  // İstemci bağlantısı kapatılır.
+            }
+        }
+        catch { }
+        client = null;  // İstemci nesnesi null yapılır.
+        clientStream = null;  // Client stream nesnesi null yapılır.
+    }
+
+    // Thread’ler durdurulur.
+    if (listenThread != null && listenThread.IsAlive)
+    {
+        try { listenThread.Abort(); } catch { }
+        listenThread = null;
+    }
+
+    if (messageThread != null && messageThread.IsAlive)
+    {
+        try { messageThread.Abort(); } catch { }
+        messageThread = null;
+    }
+
+    // İstemci listeleri temizlenir.
+    lock (clients)
+    {
+        clients.Clear();  // İstemciler listesi temizlenir.
+        addrs.Clear();  // Adresler listesi temizlenir.
+    }
+}
+```
+
+**Açıklama**:
+- **Bağlantı Temizliği**: Sunucu ve istemci bağlantılarının doğru şekilde kapatılması sağlanır. Bağlantılar kapatılırken, her iki taraf da düzgün bir şekilde sonlandırılır.
+- **Thread Yönetimi**: Thread’lerin güvenli bir şekilde sonlandırılması için `Abort()` kullanılır. Bu, çalışan iş parçacıklarının düzgün bir şekilde sonlanmasını sağlar.
+- **Kaynak Temizliği**: `client`, `clientStream`, `server` gibi kaynakların null yapılması, bellek sızıntılarını engeller ve uygulamanın verimli çalışmasını sağlar.
+
+---
+
+### **MainForm_FormClosing** 🏁
+
+Bir kullanıcı programı kapatmaya çalıştığında, bu fonksiyon çalışır. Programın düzgün bir şekilde kapanması için önce bağlantılar temizlenir. Bu, kullanıcıdan gelen son işlemden önce kaynakların doğru bir şekilde temizlenmesini sağlar.
+
+```csharp
+private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+{
+    CleanupConnections();  // Bağlantılar temizlenir ve sonlandırılır.
+}
+```
+
+**Açıklama**:
+- **Form Kapanışı**: Form kapanmadan önce tüm kaynakların düzgün bir şekilde temizlenmesi sağlanır. Bu, programın düzgün kapanmasını sağlar ve gelecekteki hataları engeller.
+
+---
 
 
 
