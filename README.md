@@ -110,6 +110,7 @@ Soketler iletişim uç noktalarını sağlarken, verinin bu uç noktalar arasın
 
 Alrawi Chat, yerel ağda güvenli ve verimli mesajlaşmayı sağlamak için TCP tabanlı bir yaklaşım kullanır. Çift yönlü iletişim için soketler kullanılırken, eş zamanlılık ve çoklu istemci desteği iş parçacıkları aracılığıyla yönetilmektedir. Ayrıca, daha fazla kullanıcı ve yüksek trafikli ağlar için ölçeklenebilirliği arttırmak adına belirli geliştirme yönlerine (örn. hata yönetimi, GUI iyileştirmeleri) odaklanılabilir.
 
+---
 
 # Kod Yapısı
 
@@ -210,3 +211,208 @@ private static List<IPEndPoint> addrs = new List<IPEndPoint>();
 ```
 
 ---
+## Network Methods 🌐
+Bu bölümdeki metodlar, istemci ve sunucu arasındaki ağ bağlantısını yönetir ve mesajlaşma işlemlerini sağlar. Bu metodlar, ağ üzerinde verilerin doğru şekilde iletilmesi, bağlantı kurulması, istemci kabul edilmesi ve mesajların iletilmesi gibi görevleri yerine getirir.
+
+### **GetLocalIPAddress** 🖥️
+
+Bir istemci ve sunucu arasında iletişim kurmak için önce bilgisayarın yerel IP adresini bilmemiz gerekiyor. Bu fonksiyon, sunucu veya istemci olalım, sistemde hangi IP adresini kullanarak bağlantı kurmamız gerektiğini belirler. Mesela, bir sunucu açıldığında, sistemin hangi IP adresi üzerinden diğer istemcilerle iletişim kuracağı belirlenir. Eğer IP adresi bulunamazsa, güvenli bir şekilde `127.0.0.1` (localhost) döndürülür.
+
+```csharp
+private string GetLocalIPAddress()
+{
+    var host = Dns.GetHostEntry(Dns.GetHostName());  // Bilgisayarın hostname'ini alır.
+    foreach (var ip in host.AddressList)  // Bilgisayarın tüm IP adreslerini kontrol eder.
+    {
+        if (ip.AddressFamily == AddressFamily.InterNetwork)  // IPv4 adresini arar.
+        {
+            return ip.ToString();  // İlk bulduğu IPv4 adresini döner.
+        }
+    }
+    return "127.0.0.1";  // Eğer IP adresi bulunmazsa, default olarak localhost (127.0.0.1) döner.
+}
+```
+
+---
+
+### **StartServer** 🖧
+
+Bir sunucu açmak için bu fonksiyon kullanılır. Diyelim ki bir kişi, bir odada sohbet etmek isteyen herkesin katılabileceği bir grup kuruyor. Bu fonksiyon, sunucuyu başlatmak ve diğer istemcilerin bağlantı kurabilmesi için bir "dinleme" başlatır. Sunucu, belirlenen IP ve port üzerinden dinlemeye başlar. Sunucunun başlatıldığına dair de bir mesaj gösterilir.
+
+```csharp
+private void StartServer(string ip, int port)
+{
+    try
+    {
+        IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), port);  // Sunucu için IP ve port adresi oluşturulur.
+        server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);  // TCP soketi oluşturulur.
+        server.Bind(endPoint);  // Soket, belirtilen IP ve port adresine bağlanır.
+        server.Listen(5);  // Sunucu, 5 istemciye kadar bağlanmayı bekler.
+        
+        listenThread = new Thread(AcceptClients);  // İstemcileri kabul etmek için yeni bir thread başlatılır.
+        listenThread.IsBackground = true;  // Bu thread arka planda çalışır.
+        listenThread.Start();  // Thread başlatılır.
+
+        AppendToChatHistory($"[SYSTEM] Server started on {ip}:{port}");  // Sunucu başlatıldığına dair mesaj eklenir.
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Error starting server: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);  // Hata durumunda mesaj gösterilir.
+    }
+}
+```
+
+---
+
+### **AcceptClients** 👥
+
+Sunucu, her yeni bağlantı için bir istemci kabul etmek üzere bir "bekleme" modunda çalışır. Birisi bağlandığında, yeni bir istemci kabul edilir ve ona yardımcı olmak için yeni bir thread başlatılır. Bu, her bir istemciyle eşzamanlı çalışmayı sağlar. Yani, birden fazla kullanıcı birbirine mesaj gönderebilirken, her birinin bağımsız olarak işlemesi sağlanır.
+
+```csharp
+private void AcceptClients()
+{
+    try
+    {
+        while (true)  // Sonsuz döngü ile sürekli istemci kabul edilir.
+        {
+            Socket clientSocket = server.Accept();  // Bağlanan istemci kabul edilir.
+            IPEndPoint clientEndPoint = (IPEndPoint)clientSocket.RemoteEndPoint;  // İstemcinin IP adresi ve portu alınır.
+            
+            lock (clients)  // İstemci listesi üzerinde kilitlenir, böylece eşzamanlı işlemler güvenli olur.
+            {
+                clients.Add(clientSocket);  // Yeni istemci listeye eklenir.
+                addrs.Add(clientEndPoint);  // İstemcinin IP adresi listeye eklenir.
+            }
+
+            Thread clientThread = new Thread(() => HandleClient(clientSocket, clientEndPoint));  // Yeni istemci için thread başlatılır.
+            clientThread.IsBackground = true;  // Arka planda çalışacak thread.
+            clientThread.Start();  // Thread çalıştırılır.
+
+            AppendToChatHistory($"[SYSTEM] New client connected: {clientEndPoint}");  // Yeni istemcinin bağlandığına dair mesaj eklenir.
+        }
+    }
+    catch (Exception ex)
+    {
+        if (!(ex is ObjectDisposedException))  // Hata kontrolü, sunucu kapatıldığında ObjectDisposedException hata verir.
+        {
+            AppendToChatHistory($"[ERROR] Server error: {ex.Message}");  // Hata mesajı gösterilir.
+        }
+    }
+}
+```
+
+---
+
+### **HandleClient** 💬
+
+Bir istemci sunucuya bağlandığında, her istemcinin kendi mesajları ve verileri vardır. Bu fonksiyon, bir istemcinin mesajlarını alır, işler ve geri gönderir. Örneğin, biri başka birine mesaj yazarsa, bu fonksiyon o mesajı alır ve tüm diğer istemcilere iletir. Eğer bir istemci "DISCONNECT_MESSAGE" gönderirse, bağlantıyı kapatır ve sohbeti sonlandırır.
+
+```csharp
+private void HandleClient(Socket clientSocket, IPEndPoint clientEndPoint)
+{
+    byte[] buffer = new byte[HEADER];  // Mesajları almak için bir buffer (önbellek) tanımlanır.
+
+    try
+    {
+        while (true)  // Sonsuz döngü ile istemciden sürekli veri alınır.
+        {
+            int msgLength = clientSocket.Receive(buffer, 0, HEADER, SocketFlags.None);  // Verinin başlığı alınır.
+            if (msgLength > 0)
+            {
+                byte[] msgBuffer = new byte[msgLength];  // Gelen mesajın boyutu kadar bir array oluşturulur.
+                clientSocket.Receive(msgBuffer, 0, msgLength, SocketFlags.None);  // Mesaj alınır.
+                string msg = Encoding.UTF8.GetString(msgBuffer);  // Mesaj UTF-8 formatında string'e dönüştürülür.
+
+                if (msg == DISCONNECT_MESSAGE)  // Bağlantı kesme mesajı kontrol edilir.
+                    break;  // Eğer "DISCONNECT" mesajı alınırsa, bağlantı sonlandırılır.
+
+                AppendToChatHistory($"{msg}");  // Mesaj, sohbet geçmişine eklenir.
+                Broadcast(clientEndPoint, msg);  // Mesaj, diğer istemcilere iletilir.
+            }
+        }
+    }
+    catch
+    {
+        // Bağlantı kesildiğinde veya bir hata oluştuğunda hiçbir işlem yapılmaz.
+    }
+    finally
+    {
+        lock (clients)  // İstemci listesi üzerinde kilitlenir.
+        {
+            int index = clients.IndexOf(clientSocket);  // Bağlantı kesilen istemci listeden çıkarılır.
+            if (index >= 0)
+            {
+                clients.RemoveAt(index);  // İstemci listeden silinir.
+                addrs.RemoveAt(index);  // İstemcinin adresi listeden silinir.
+            }
+        }
+
+        clientSocket.Close();  // İstemci bağlantısı kapatılır.
+        AppendToChatHistory($"[SYSTEM] Client disconnected: {clientEndPoint}");  // Bağlantı kesildiğine dair mesaj eklenir.
+    }
+}
+```
+
+---
+
+### **Broadcast** 📡
+Sunucu, bir istemciden gelen mesajı alır ve tüm diğer istemcilere iletmek ister. Buradaki amaç, mesajın tüm katılımcılara ulaşmasını sağlamaktır. Ancak, mesajı gönderen istemciye geri göndermemek için onun IP adresi kontrol edilir. 
+
+```csharp
+private void Broadcast(IPEndPoint senderEndPoint, string message)
+{
+    lock (clients)  // İstemci listesi üzerinde kilitlenir.
+    {
+        for (int i = 0; i < clients.Count; i++)  // Tüm istemciler için döngü başlatılır.
+        {
+            if (addrs[i].Equals(senderEndPoint)) continue;  // Mesajı gönderen istemciye mesaj gönderilmez.
+            
+            try
+            {
+                byte[] data = Encoding.UTF8.GetBytes(message);  // Mesaj UTF-8 formatında byte dizisine dönüştürülür.
+                clients[i].Send(data);  // Mesaj istemciye gönderilir.
+            }
+            catch
+            {
+                // Hata durumunda işlem yapılmaz, istemci zaten thread ile temizlenir.
+            }
+        }
+    }
+}
+```
+
+---
+
+### **ConnectToServer** 🔌
+Bir istemci sunucuya bağlanmak istediğinde, bu fonksiyon kullanılır. Sunucuya başarılı bir şekilde bağlanırsa, istemci sürekli mesaj alabilmek için arka planda bir thread çalıştırılır. Bağlantı hatalıysa, kullanıcıya hata mesajı gösterilir.
+
+```csharp
+private bool ConnectToServer(string serverIP, int port)
+{
+    try
+    {
+        client = new TcpClient();  // Yeni bir TCP istemcisi oluşturulur.
+        client.Connect(serverIP, port);  // Sunucuya bağlanılır.
+        clientStream = client.GetStream();  // Bağlantı üzerinden veri akışı başlatılır.
+
+        messageThread = new Thread(ReceiveMessages);  // Mesajları almak için yeni bir thread başlatılır.
+        messageThread.IsBackground = true;  // Bu thread arka planda çalışır.
+        messageThread.Start();  // Thread baş
+
+latılır.
+        
+        return true;  // Bağlantı başarılı.
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Connection failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);  // Hata mesajı gösterilir.
+        return false;  // Bağlantı hatalı.
+    }
+}
+```
+
+---
+
+
+
+
