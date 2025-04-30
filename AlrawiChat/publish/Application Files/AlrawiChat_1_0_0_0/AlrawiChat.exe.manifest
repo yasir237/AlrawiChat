@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
+  <asmv1:assemblyIdentity name="AlrawiChat.exe" version="1.0.0.0" publicKeyToken="da115bc2f794f0b8" language="neutral" processorArchitecture="msil" type="win32" />
+  <application />
+  <entryPoint>
+    <assemblyIdentity name="AlrawiChat" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+    <commandLine file="AlrawiChat.exe" parameters="" />
+  </entryPoint>
+  <trustInfo>
+    <security>
+      <applicationRequestMinimum>
+        <PermissionSet Unrestricted="true" ID="Custom" SameSite="site" />
+        <defaultAssemblyRequest permissionSetReference="Custom" />
+      </applicationRequestMinimum>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!--
+          UAC Manifest Options
+          If you want to change the Windows User Account Control level replace the
+          requestedExecutionLevel node with one of the following.
+
+        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+
+         If you want to utilize File and Registry Virtualization for backward
+         compatibility then delete the requestedExecutionLevel node.
+    -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <dependency>
+    <dependentOS>
+      <osVersionInfo>
+        <os majorVersion="5" minorVersion="1" buildNumber="2600" servicePackMajor="0" />
+      </osVersionInfo>
+    </dependentOS>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="preRequisite" allowDelayedBinding="true">
+      <assemblyIdentity name="Microsoft.Windows.CommonLanguageRuntime" version="4.0.30319.0" />
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AlrawiChat.exe" size="24032">
+      <assemblyIdentity name="AlrawiChat" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>fohvzCdHREaBlE5eGu2LR4h5C5VCPRWKDmCL3wg2rp0=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <file name="AlrawiChat.exe.config" size="189">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>R+Wg8QGvQVHX8T0ta/qbhH1bXkqY0fRnS3wBV3J0bN8=</dsig:DigestValue>
+    </hash>
+  </file>
+<publisherIdentity name="CN=DESKTOP-6TD6AR7\besir" issuerKeyHash="db8de9bf21fccba5ae6db739a82494e4a024e854" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>Rj3qpSMGP28tA10+O3gRg7C2qZfH/BNGNhaVK7vNE2U=</DigestValue></Reference></SignedInfo><SignatureValue>esnv+x3wvZPV/UuBeryzjd7/+Q5MyU9asaGr8JKf0yIioybDw3C9oECFbj9LDPE4gnXHb8DijpJ0Fk5KuoVjb3TNYWL6vCPc5mFA9NiqlmVMVZIXmNtF/OEilazXuL3DXJ6Rn3v9tL3r2H3Hi9eRTP1aGON7z+IjKxJB8B6/T9M=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>u9iYWxx+4g2dt38lk8Hwj62Yzdl0jkmdetKbXX8Bdgb1zJCyH15TInbM8NSQnVNeOMTDQUUQDB9CJ3GomDnOBGmn9EhcOQu/XLq7Y/hwCxJ5iIVuzDaNHYRz+2mdIFZlsaFl/88kmGoVfMxnAiqM+f7AA3AHpUStdkl3D1Akqh0=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="6513cdbb2b9516364613fcc797a9b6b08311783b3e5d032d6f3f0623a5ea3d46" Description="" Url=""><as:assemblyIdentity name="AlrawiChat.exe" version="1.0.0.0" publicKeyToken="da115bc2f794f0b8" language="neutral" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=DESKTOP-6TD6AR7\besir</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>piDlPnvDiUpe4J3reqFoz93Swovh19VPeDD5nslE89k=</DigestValue></Reference></SignedInfo><SignatureValue>pM4wK9oOXHKn8aVhmNcsSnNJ0cOEB01kYz1FslWQ9iA3Ntx5+qv1K62fc+59dQIs+PDmZTyCH+7g5llRVNtlIy49blOXlfoAW5OWSznKwvQc855R8dfV8kGjc4Wp6MLZBaYuOOZPuvayuxqn+5nl9P2Q+Hx+PPM/anEF1y4jbXk=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>u9iYWxx+4g2dt38lk8Hwj62Yzdl0jkmdetKbXX8Bdgb1zJCyH15TInbM8NSQnVNeOMTDQUUQDB9CJ3GomDnOBGmn9EhcOQu/XLq7Y/hwCxJ5iIVuzDaNHYRz+2mdIFZlsaFl/88kmGoVfMxnAiqM+f7AA3AHpUStdkl3D1Akqh0=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIIB7TCCAVagAwIBAgIQT/H6WPSJX7tBpvOc93x8nzANBgkqhkiG9w0BAQsFADA1MTMwMQYDVQQDHioARABFAFMASwBUAE8AUAAtADYAVABEADYAQQBSADcAXABiAGUAcwBpAHIwHhcNMjUwNDA1MDcyNDQyWhcNMjYwNDA1MTMyNDQyWjA1MTMwMQYDVQQDHioARABFAFMASwBUAE8AUAAtADYAVABEADYAQQBSADcAXABiAGUAcwBpAHIwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALvYmFscfuINnbd/JZPB8I+tmM3ZdI5JnXrSm11/AXYG9cyQsh9eUyJ2zPDUkJ1TXjjEw0FFEAwfQidxqJg5zgRpp/RIXDkLv1y6u2P4cAsSeYiFbsw2jR2Ec/tpnSBWZbGhZf/PJJhqFXzMZwIqjPn+wANwB6VErXZJdw9QJKodAgMBAAEwDQYJKoZIhvcNAQELBQADgYEAfPW1ce1DR/FsuhF72RtuVhLBy0oIP35RtfKnHQ9FLSK0BvvPvirD2EmgA261DwbzB1LfvEekh4nCaSqcvV/aVxA9tTgXVxSOP6z3MsrySv2x4rkKOzXwjIQ/zlc1vzx7BSlHL2LCCveh+acEL5S3I7DFe11K/xyWbCgrjR3KcMo=</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>

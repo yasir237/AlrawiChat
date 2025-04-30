@@ -1,0 +1,14 @@
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\bin\Debug\AlrawiChat.exe.config
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\bin\Debug\AlrawiChat.exe
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\bin\Debug\AlrawiChat.pdb
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.csproj.AssemblyReference.cache
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.MainForm.resources
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.Properties.Resources.resources
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.csproj.GenerateResource.cache
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.csproj.CoreCompileInputs.cache
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.exe
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.pdb
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\bin\Debug\AlrawiChat.exe.manifest
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\bin\Debug\AlrawiChat.application
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.exe.manifest
+C:\Users\besir\source\repos\AlrawiChat\AlrawiChat\obj\Debug\AlrawiChat.application
